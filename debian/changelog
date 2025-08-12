@@ -1,3 +1,9 @@
+llvm-toolchain-17 (1:17.0.6-5deepin6) unstable; urgency=medium
+
+  * feat: add sw64 support.
+
+ -- hudeng <hudeng@deepin.org>  Tue, 12 Aug 2025 16:00:36 +0800
+
 llvm-toolchain-17 (1:17.0.6-5deepin5) unstable; urgency=medium
 
   * Backport support for the -mcmodel option in LoongArch
