@@ -1,0 +1,72 @@
+diff --git a/clang/lib/Basic/Targets/Sw64.h b/clang/lib/Basic/Targets/Sw64.h
+index 6be6ac99c67b..4a868b5ef184 100644
+--- a/clang/lib/Basic/Targets/Sw64.h
++++ b/clang/lib/Basic/Targets/Sw64.h
+@@ -26,7 +26,7 @@ namespace targets {
+ class LLVM_LIBRARY_VISIBILITY Sw64TargetInfo : public TargetInfo {
+   static const Builtin::Info BuiltinInfo[];
+ #ifndef ZENGZH20230504_SIMD
+-  bool HasCore3 = false;
++  bool HasCore3 = true;
+   bool HasCore4 = false;
+ #endif
+ 
+diff --git a/llvm/lib/Target/Sw64/Sw64Subtarget.cpp b/llvm/lib/Target/Sw64/Sw64Subtarget.cpp
+index 418e36d0e864..bba06aed2963 100644
+--- a/llvm/lib/Target/Sw64/Sw64Subtarget.cpp
++++ b/llvm/lib/Target/Sw64/Sw64Subtarget.cpp
+@@ -26,7 +26,7 @@ using namespace llvm;
+ 
+ #ifndef CHENHB20230822_8A
+ static cl::opt<bool> Sw64IntArith("sw-int-divmod",
+-                                       cl::init(true),
++                                       cl::init(false),
+                                        cl::desc("Enable sw64 core4 integer"
+                                                 "arithmetic instructions"));
+ 
+@@ -41,7 +41,7 @@ static cl::opt<bool> Sw64ByteInst("sw-rev",
+                                                 "manipulation instructions"));
+ 
+ static cl::opt<bool> Sw64FloatArith("sw-recip",
+-                                       cl::init(true),
++                                       cl::init(false),
+                                        cl::desc("Enable sw64 core4 float"
+                                                 "arithmetic instructions"));
+ 
+@@ -51,7 +51,7 @@ static cl::opt<bool> Sw64FloatRound("sw-fprnd",
+                                                 "round instructions"));
+ 
+ static cl::opt<bool> Sw64FloatCmov("sw-cmov",
+-                                       cl::init(true),
++                                       cl::init(false),
+                                        cl::desc("Enable sw64 core4 float"
+                                                 "cmov instructions"));
+ 
+@@ -61,7 +61,7 @@ static cl::opt<bool> Sw64PostInc("sw-auto-inc-dec",
+                                                 "load and store instructions"));
+ 
+ static cl::opt<bool> Sw64CasInst("sw-use-cas",
+-                                       cl::init(true),
++                                       cl::init(false),
+                                        cl::desc("Enable sw64 core4 cas instructions"));
+ 
+ static cl::opt<bool> Sw64CrcInst("sw-crc32",
+diff --git a/llvm/lib/Target/Sw64/Sw64Subtarget.h b/llvm/lib/Target/Sw64/Sw64Subtarget.h
+index 6f64cdc61d0c..31c10ca46fdd 100644
+--- a/llvm/lib/Target/Sw64/Sw64Subtarget.h
++++ b/llvm/lib/Target/Sw64/Sw64Subtarget.h
+@@ -165,12 +165,8 @@ public:
+ 
+   bool is64Bit() const { return true; }
+ #ifndef BAOYL20220720_8A
+-  bool hasCore3b() const { return Sw64ArchVersion == core3b; }
+-#ifdef SW64_DEFAULT_ARCH_CORE3
+-  bool hasCore4() const { return Sw64ArchVersion == core4; }
+-#else
+-  bool hasCore4() const { return true; }
+-#endif
++  bool hasCore3b() const { return true; }
++  bool hasCore4() const { return false; }
+ #endif
+   bool enRelax() const { return relax; }
+   bool hasEv() const { return Ev; }

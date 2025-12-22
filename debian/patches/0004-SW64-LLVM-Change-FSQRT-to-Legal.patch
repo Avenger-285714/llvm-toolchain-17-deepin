@@ -1,0 +1,29 @@
+From ceef9aa2d7c522abf8b06b33dfac79a6f66bacac Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:21:40 +0800
+Subject: [PATCH 4/6] [SW64][LLVM] Change FSQRT to Legal
+
+---
+ llvm/lib/Target/Sw64/Sw64ISelLowering.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+index a67a60d5e200..1a1365201eff 100644
+--- a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
++++ b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+@@ -460,8 +460,10 @@ Sw64TargetLowering::Sw64TargetLowering(const TargetMachine &TM,
+   setOperationAction(ISD::FSIN, MVT::f32, Expand);
+   setOperationAction(ISD::FCOS, MVT::f32, Expand);
+ 
+-  setOperationAction(ISD::FSQRT, MVT::f64, Expand);
+-  setOperationAction(ISD::FSQRT, MVT::f32, Expand);
++  setOperationAction(ISD::FSQRT, MVT::f64, Legal);
++  setOperationAction(ISD::FSQRT, MVT::f32, Legal);
++  setOperationAction(ISD::STRICT_FSQRT, MVT::f64, Legal);
++  setOperationAction(ISD::STRICT_FSQRT, MVT::f32, Legal);
+ 
+   setOperationAction(ISD::FPOW, MVT::f32, Expand);
+   setOperationAction(ISD::FPOW, MVT::f64, Expand);
+-- 
+2.35.3
+

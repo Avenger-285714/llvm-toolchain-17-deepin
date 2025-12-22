@@ -1,0 +1,35 @@
+From 045cdb943c89c43e35a2c678eda114c7bd715d32 Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:19:27 +0800
+Subject: [PATCH 2/6] [SW64][LLVM] Fix the error when start with an i128 shift
+
+The initial shift amount would usually have zeros in bit 8 and above,
+xoring the shift amount with -1 will set those upper bits to 1.
+---
+ llvm/lib/Target/Sw64/Sw64ISelLowering.cpp | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+index e2a07e4d692f..2141050d3f24 100644
+--- a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
++++ b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+@@ -2504,12 +2504,13 @@ SDValue Sw64TargetLowering::LowerSHL_PARTS(SDValue Op,
+   SDValue Shamt = Op.getOperand(2);
+   // if shamt < (VT.bits):
+   //  lo = (shl lo, shamt)
+-  //  hi = (or (shl hi, shamt) (srl (srl lo, 1), ~shamt))
++  //  hi = (or (shl hi, shamt) (srl (srl lo, 1), (xor shamt, (VT.bits-1)))
+   // else:
+   //  lo = 0
+   //  hi = (shl lo, shamt[4:0])
+-  SDValue Not = DAG.getNode(ISD::XOR, DL, MVT::i64, Shamt,
+-                            DAG.getConstant(-1, DL, MVT::i64));
++  SDValue Not =
++      DAG.getNode(ISD::XOR, DL, MVT::i64, Shamt,
++                  DAG.getConstant(VT.getSizeInBits() - 1, DL, MVT::i64));
+   SDValue ShiftRight1Lo = DAG.getNode(ISD::SRL, DL, VT, Lo,
+                                       DAG.getConstant(1, DL, VT));
+   SDValue ShiftRightLo = DAG.getNode(ISD::SRL, DL, VT, ShiftRight1Lo, Not);
+-- 
+2.35.3
+

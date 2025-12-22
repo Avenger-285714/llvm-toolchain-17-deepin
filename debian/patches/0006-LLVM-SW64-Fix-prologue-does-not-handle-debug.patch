@@ -1,0 +1,43 @@
+From 8b525a48a7256253c07e86727456801bd82c3936 Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:25:12 +0800
+Subject: [PATCH 6/6] [LLVM][SW64] Fix prologue does not handle debug
+
+The first debug location must be to determine the end of the prologue.
+
+Clang '-g' default is dwarf-5, but it has some problem when use gdb on sw.
+So change default dwarf version to 4 same as riscv.
+---
+ clang/lib/Driver/ToolChain.cpp             | 2 +-
+ llvm/lib/Target/Sw64/Sw64FrameLowering.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/clang/lib/Driver/ToolChain.cpp b/clang/lib/Driver/ToolChain.cpp
+index 8dafc3d481c2..0a6dc5f95281 100644
+--- a/clang/lib/Driver/ToolChain.cpp
++++ b/clang/lib/Driver/ToolChain.cpp
+@@ -430,7 +430,7 @@ ToolChain::getDefaultUnwindTableLevel(const ArgList &Args) const {
+ unsigned ToolChain::GetDefaultDwarfVersion() const {
+   // TODO: Remove the RISC-V special case when R_RISCV_SET_ULEB128 linker
+   // support becomes more widely available.
+-  return getTriple().isRISCV() ? 4 : 5;
++  return getTriple().isRISCV() || getTriple().isSw64() ? 4 : 5;
+ }
+ 
+ Tool *ToolChain::getClang() const {
+diff --git a/llvm/lib/Target/Sw64/Sw64FrameLowering.cpp b/llvm/lib/Target/Sw64/Sw64FrameLowering.cpp
+index e9bc923175cc..0655ef22d025 100644
+--- a/llvm/lib/Target/Sw64/Sw64FrameLowering.cpp
++++ b/llvm/lib/Target/Sw64/Sw64FrameLowering.cpp
+@@ -106,7 +106,7 @@ void Sw64FrameLowering::emitPrologue(MachineFunction &MF,
+       MF.getSubtarget<Sw64Subtarget>().getRegisterInfo());
+   // Debug location must be unknown since the first debug location is used
+   // to determine the end of the prologue.
+-  DebugLoc dl = (MBBI != MBB.end() ? MBBI->getDebugLoc() : DebugLoc());
++  DebugLoc dl;
+ 
+   // First, compute final stack size.
+   uint64_t StackSize = MFI.getStackSize();
+-- 
+2.35.3
+
