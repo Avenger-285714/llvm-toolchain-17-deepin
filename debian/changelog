@@ -1,3 +1,14 @@
+llvm-toolchain-17 (1:17.0.6-5deepin7) unstable; urgency=medium
+
+  * fix: 6b target incorrect
+  * fix: the error when start with an i128 shif
+  * add: support for CTPOP Lowering
+  * change: FSQRT to Legal
+  * change: prefetch data write from s_fillcs t
+  * fix: prologue does not handle debug
+
+ -- hudeng <hudeng@deepin.org>  Mon, 22 Dec 2025 15:20:44 +0800
+
 llvm-toolchain-17 (1:17.0.6-5deepin6) unstable; urgency=medium
 
   * feat: add sw64 support.

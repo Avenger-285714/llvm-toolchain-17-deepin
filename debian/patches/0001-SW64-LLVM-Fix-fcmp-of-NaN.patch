@@ -1,0 +1,42 @@
+From 999956b478eb7993e39c6d8e13b9779620ab6f9a Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:18:24 +0800
+Subject: [PATCH 1/6] [SW64][LLVM] Fix fcmp of NaN
+
+---
+ llvm/lib/Target/Sw64/Sw64InstrInfo.td | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/llvm/lib/Target/Sw64/Sw64InstrInfo.td b/llvm/lib/Target/Sw64/Sw64InstrInfo.td
+index 678afc7c1fe5..59397a946afc 100644
+--- a/llvm/lib/Target/Sw64/Sw64InstrInfo.td
++++ b/llvm/lib/Target/Sw64/Sw64InstrInfo.td
+@@ -1987,25 +1987,8 @@ def : BrPat_cond_i<setne,  FBEQ, CMPTEQ, F8RC>;
+ def : BrPat_cond_i<seteq,  FBNE, CMPTEQ, F8RC>;
+ 
+ #ifndef ZHAOAN20220311_OPT_FCMP
+-//def : BrPat_cond_i<setoeq,  FBNE, CMPTEQ, F8RC>;
+-//def : BrPat_cond_i<setueq,  FBNE, CMPTEQ, F8RC>;
+-
+ def : BrPat_cond_i<setge,   FBEQ, CMPTLT, F8RC>;
+-def : BrPat_cond_i<setoge,  FBEQ, CMPTLT, F8RC>;
+-def : BrPat_cond_i<setuge,  FBEQ, CMPTLT, F8RC>;
+-
+ def : BrPat_cond_i<setgt,   FBEQ, CMPTLE, F8RC>;
+-def : BrPat_cond_i<setogt,  FBEQ, CMPTLE, F8RC>;
+-def : BrPat_cond_i<setugt,  FBEQ, CMPTLE, F8RC>;
+-
+-//def : BrPat_cond_i<setone,  FBEQ, CMPTEQ, F8RC>;
+-//def : BrPat_cond_i<setune,  FBEQ, CMPTEQ, F8RC>;
+-
+-def : BrPat_cond<setolt,  FBEQ, CMPTLE, F8RC>;
+-def : BrPat_cond<setole,  FBEQ, CMPTLT, F8RC>;
+-
+-def : BrSwapPat_cond<setogt,  FBEQ, CMPTLE, F8RC>;
+-def : BrSwapPat_cond<setoge,  FBEQ, CMPTLT, F8RC>;
+ #endif
+ 
+ #endif
+-- 
+2.35.3
+

@@ -1,1 +1,8 @@
 0001-feat-add-sw64-support.patch
+fix-6b-target.patch
+0001-SW64-LLVM-Fix-fcmp-of-NaN.patch
+0002-SW64-LLVM-Fix-the-error-when-start-with-an-i128-shif.patch
+0003-SW64-LLVM-Add-support-for-CTPOP-Lowering.patch
+0004-SW64-LLVM-Change-FSQRT-to-Legal.patch
+0005-SW64-LLVM-Change-prefetch-data-write-from-s_fillcs-t.patch
+0006-LLVM-SW64-Fix-prologue-does-not-handle-debug.patch

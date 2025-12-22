@@ -1,0 +1,43 @@
+From ecd4019f4663d11a5c98463061ab5f9b7e21d781 Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:24:34 +0800
+Subject: [PATCH 5/6] [SW64][LLVM] Change prefetch data write from s_fillcs to
+ fillcs
+
+Also merge another commit :fix llvm-13 change prefetch ISD meaning.
+---
+ llvm/lib/Target/Sw64/Sw64ISelLowering.cpp | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+index 1a1365201eff..6e20a49faaf2 100644
+--- a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
++++ b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+@@ -3018,15 +3018,15 @@ SDValue Sw64TargetLowering::LowerPREFETCH(SDValue Op,
+   unsigned IsData = cast<ConstantSDNode>(Op.getOperand(4))->getZExtValue();
+ 
+   unsigned Code = IsData ? Sw64ISD::Z_S_FILLCS : Sw64ISD::Z_FILLCS;
+-    if (IsWrite == 1 && IsData ==1)
+-                Code = Sw64ISD::Z_S_FILLDE;
+-      if (IsWrite == 0 && IsData ==1)
+-                  Code = Sw64ISD::Z_S_FILLCS;
+-        if (IsWrite == 1 && IsData ==0)
+-                    Code = Sw64ISD::Z_FILLDE;
+-          if (IsWrite == 0 && IsData ==0)
+-                      Code = Sw64ISD::Z_FILLCS;
+-
++  if (IsWrite == 1 && IsData ==1)
++    Code = Sw64ISD::Z_FILLDE;
++  if (IsWrite == 0 && IsData ==1)
++    Code = Sw64ISD::Z_FILLCS;
++  if (IsWrite == 1 && IsData ==0)
++    Code = Sw64ISD::Z_S_FILLDE;
++  if (IsWrite == 0 && IsData ==0)
++    Code = Sw64ISD::Z_FILLCS;
++ 
+   unsigned PrfOp = 0;
+ 
+   return DAG.getNode(Code, DL, MVT::Other, Op.getOperand(0),
+-- 
+2.35.3
+

@@ -1,0 +1,67 @@
+From 54e00895fddf69130466bf5a1dfd09222b3de97f Mon Sep 17 00:00:00 2001
+From: xiaol <xiaol@example.com>
+Date: Thu, 12 Dec 2024 17:20:44 +0800
+Subject: [PATCH 3/6] [SW64][LLVM] Add support for CTPOP Lowering
+
+Add support for CTPOP in TargetTransform, also fixup ctX instrution encode.
+---
+ llvm/lib/Target/Sw64/Sw64ISelLowering.cpp        |  9 +++++++++
+ llvm/lib/Target/Sw64/Sw64TargetTransformInfo.cpp | 10 ++++++++++
+ llvm/lib/Target/Sw64/Sw64TargetTransformInfo.h   |  3 +++
+ 3 files changed, 22 insertions(+)
+
+diff --git a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+index 2141050d3f24..a67a60d5e200 100644
+--- a/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
++++ b/llvm/lib/Target/Sw64/Sw64ISelLowering.cpp
+@@ -633,6 +633,15 @@ if (Subtarget.hasCore4() && Subtarget.enableFloatAri()) {
+   setLibcallName(RTLIB::DIV_F128, "_OtsDivX");
+ #endif
+ #ifndef ZENGZH20230424_SIMD
++  setOperationAction(ISD::CTPOP, MVT::i32, Promote);
++  setOperationAction(ISD::CTPOP, MVT::i64, Legal);
++
++//  setOperationAction(ISD::CTLZ, MVT::i32, Promote);
++//  setOperationAction(ISD::CTLZ, MVT::i64, Legal);
++//
++//  setOperationAction(ISD::CTTZ, MVT::i32, Promote);
++//  setOperationAction(ISD::CTTZ, MVT::i64, Legal);
++
+   setMinStackArgumentAlignment(Align(32));
+ #endif
+   setMinFunctionAlignment(Align(8));
+diff --git a/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.cpp b/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.cpp
+index 805155d58691..1a51692ed71d 100644
+--- a/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.cpp
++++ b/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.cpp
+@@ -883,3 +883,13 @@ int Sw64TTIImpl::getIntrinsicInstrCost(const IntrinsicCostAttributes &ICA,
+   return BaseT::getIntrinsicInstrCost(ICA, CostKind);
+ }
+ #endif
++
++
++TargetTransformInfo::PopcntSupportKind
++Sw64TTIImpl::getPopcntSupport(unsigned TyWidth) {
++  assert(isPowerOf2_32(TyWidth) && "Ty width must be power of 2");
++  // Sw64 only support 64 Bit Pop County
++  if (TyWidth == 32 || TyWidth == 64)
++    return TTI::PSK_FastHardware;
++  return TTI::PSK_Software;
++}
+diff --git a/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.h b/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.h
+index 9090734f1c93..e1b27cabfbe1 100644
+--- a/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.h
++++ b/llvm/lib/Target/Sw64/Sw64TargetTransformInfo.h
+@@ -128,6 +128,9 @@ public:
+                                      const Instruction *I = nullptr);
+   bool isFoldableLoad(const LoadInst *Ld, const Instruction *&FoldedValue);
+ #endif
++
++  TargetTransformInfo::PopcntSupportKind getPopcntSupport(unsigned TyWidth);
++  /// @}
+ };
+ 
+ } // end namespace llvm
+-- 
+2.35.3
+
