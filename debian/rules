@@ -271,6 +271,13 @@ ifneq (,$(filter $(DEB_HOST_ARCH),mips64el))
   LIBCXX_USE_COMPILER_RT := OFF
 endif
 
+ifneq (,$(filter $(DEB_HOST_ARCH),mips64el))
+  STAGE_1_CFLAGS += -mxgot
+  STAGE_1_CXXFLAGS += -mxgot
+  STAGE_2_CFLAGS += -mxgot
+  STAGE_2_CXXFLAGS += -mxgot
+endif
+
 ifneq (,$(filter $(DEB_HOST_ARCH),x32))
   STAGE_ALL_CMAKE_EXTRA += -DLLVM_HOST_TRIPLE=x86_64-linux-gnux32
   STAGE_ALL_CMAKE_EXTRA += -DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-linux-gnux32
@@ -931,6 +938,12 @@ endif
 # Remove some new flags introduced by dpkg 1.22.0;
 STAGE_2_WASM_CFLAGS := $(filter-out -march=% -mfpu=% -fcf-protection% -mbranch-protection%, $(STAGE_2_CFLAGS))
 STAGE_2_WASM_CXXFLAGS := $(filter-out -march=% -mfpu=% -fcf-protection% -mbranch-protection%, $(STAGE_2_CXXFLAGS))
+
+# Remove -mxgot which is not supported by the wasm targets.
+ifneq (,$(filter $(DEB_HOST_ARCH),mips64el))
+  STAGE_2_WASM_CFLAGS := $(filter-out -mxgot, $(STAGE_2_WASM_CFLAGS))
+  STAGE_2_WASM_CXXFLAGS := $(filter-out -mxgot, $(STAGE_2_WASM_CXXFLAGS))
+endif
 
 build-wasm/compiler-rt-%: cpu = $(@:build-wasm/compiler-rt-%=%)
 build-wasm/compiler-rt-%:

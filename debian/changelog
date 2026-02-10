@@ -1,3 +1,9 @@
+llvm-toolchain-17 (1:17.0.6-5deepin8) unstable; urgency=medium
+
+  * fix mips64el: clang++: error: linker command failed with exit code 1 .
+
+ -- lichenggang <lichenggang@deepin.org>  Thu, 05 Dec 2024 21:00:13 +0800
+
 llvm-toolchain-17 (1:17.0.6-5deepin7) unstable; urgency=medium
 
   * fix: 6b target incorrect
